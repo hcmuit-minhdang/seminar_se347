@@ -38,6 +38,9 @@ export interface EditorInstance {
   replaceDocument(v: string): void;
   getModel(): monaco.editor.ITextModel;
   setTheme(t: Theme): void;
+  /** Khoá/mở sửa code. Khoá thì bàn phím ảo trên điện thoại không bật lên khi chạm hoặc cuộn. */
+  setReadOnly(readOnly: boolean): void;
+  focus(): void;
   dispose(): void;
 }
 
@@ -62,6 +65,7 @@ export function createEditor(
     theme: "vs",
     automaticLayout: true,
     fontSize: 14,
+    wordWrap: "on", // xuống dòng thay vì cuộn ngang, dễ đọc trên màn hình hẹp
     fontFamily: "'JetBrains Mono', Consolas, Monaco, monospace",
     tabSize: 2,
     minimap: { enabled: false },
@@ -83,6 +87,14 @@ export function createEditor(
   return {
     getValue(): string {
       return model.getValue();
+    },
+
+    setReadOnly(readOnly: boolean): void {
+      editor.updateOptions({ readOnly, domReadOnly: readOnly });
+    },
+
+    focus(): void {
+      editor.focus();
     },
 
     replaceDocument(v: string): void {

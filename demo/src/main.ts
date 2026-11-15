@@ -10,6 +10,8 @@ import { createConsole } from "./components/Console";
 import { createLessonList } from "./components/LessonList";
 import { createCompare } from "./components/Compare";
 import { createIntro } from "./components/Intro";
+import { createQuiz } from "./components/Quiz";
+import { questions } from "./lessons/quiz";
 
 const THEME_KEY = "ts-demo-theme";
 
@@ -44,21 +46,23 @@ async function start(): Promise<void> {
 
   // ---- Khung giao diện ----
   const runBtn = el("button", { class: "btn btn-primary", text: "▶ Chạy", attrs: { type: "button", title: "Ctrl + Enter" } });
-  const stopBtn = el("button", { class: "btn", text: "■ Dừng", attrs: { type: "button" } });
+  const stopBtn = el("button", { class: "btn btn-stop", text: "■ Dừng", attrs: { type: "button" } });
   stopBtn.hidden = true;
   const shareBtn = el("button", { class: "btn", text: "Chia sẻ", attrs: { type: "button" } });
   const themeBtn = el("button", { class: "theme-toggle-btn", attrs: { type: "button", "aria-label": "Đổi giao diện sáng/tối" } });
+  // Trên điện thoại, 5 tab này nằm ở thanh dưới cùng; trên desktop nằm ở header (tab "Bài học" chỉ có ở điện thoại).
   const tabButtons: Record<Tab, HTMLButtonElement> = {
     intro: el("button", { class: "tab-btn", text: "Giới thiệu", attrs: { type: "button" } }),
-    playground: el("button", { class: "tab-btn", text: "Playground", attrs: { type: "button" } }),
-    compare: el("button", { class: "tab-btn", text: "So sánh JS/TS", attrs: { type: "button" } }),
+    lessons: el("button", { class: "tab-btn tab-btn-mobile-only", text: "Bài học", attrs: { type: "button" } }),
+    playground: el("button", { class: "tab-btn", text: "Code", attrs: { type: "button" } }),
+    compare: el("button", { class: "tab-btn", text: "So sánh", attrs: { type: "button" } }),
+    quiz: el("button", { class: "tab-btn", text: "Đố vui", attrs: { type: "button" } }),
   };
 
   const header = el(
     "header",
     { class: "app-header" },
     el("div", { class: "app-brand" }, el("span", { class: "brand-badge", text: "TS" }), el("span", { class: "brand-title", text: "TypeScript Demo" })),
-    el("nav", { class: "tab-navigation" }, tabButtons.intro, tabButtons.playground, tabButtons.compare),
     el("div", { class: "header-actions" }, runBtn, stopBtn, shareBtn, themeBtn),
   );
 
@@ -66,23 +70,34 @@ async function start(): Promise<void> {
   const explainTitle = el("h3", { class: "lesson-explain-title" });
   const explainBody = el("div", { class: "lesson-explain-body" });
   const explainActions = el("div", { class: "lesson-explain-actions" });
-  const explain = el("details", { class: "lesson-explain", props: { open: true } }, el("summary", { text: "Giải thích bài học" }), explainTitle, explainBody, explainActions);
+  const mobileQuery = matchMedia("(max-width: 768px)");
+  const touchDevice = matchMedia("(pointer: coarse)").matches;
+  // Màn hình nhỏ: thu gọn phần giải thích để dành chỗ cho code và kết quả.
+  const explain = el("details", { class: "lesson-explain", props: { open: !mobileQuery.matches } }, el("summary", { text: "Giải thích bài học" }), explainTitle, explainBody, explainActions);
   const editorStatus = el("p", { class: "compare-note", text: "Đang tải trình soạn thảo..." });
   const editorHost = el("div", { class: "editor-host" }, editorStatus);
+  // Trên thiết bị cảm ứng, code mặc định chỉ để xem: tránh bàn phím ảo bật lên mỗi lần chạm hoặc cuộn.
+  const editToggle = el("button", { class: "btn btn-small", text: "Sửa code", attrs: { type: "button" } });
+  const editorToolbar = el("div", { class: "editor-toolbar" }, editToggle);
+  editorToolbar.hidden = !touchDevice;
   const consoleHost = el("div", { class: "console-pane" });
-  const panels: Record<Tab, HTMLElement> = {
+  const panels: Record<Exclude<Tab, "lessons">, HTMLElement> = {
     intro: el("section", { class: "tab-panel" }),
     playground: el(
       "section",
       { class: "tab-panel" },
-      el("div", { class: "playground-view" }, el("div", { class: "editor-pane" }, explain, editorHost), consoleHost),
+      el("div", { class: "playground-view" }, el("div", { class: "editor-pane" }, explain, editorToolbar, editorHost), consoleHost),
     ),
     compare: el("section", { class: "tab-panel" }),
+    quiz: el("section", { class: "tab-panel" }),
   };
 
+  // Thanh tab là phần tử con trực tiếp của #app: desktop đặt nó giữa header, điện thoại thì nó nằm đáy màn hình.
+  const tabBar = el("nav", { class: "tab-navigation" }, tabButtons.intro, tabButtons.lessons, tabButtons.playground, tabButtons.compare, tabButtons.quiz);
   app.replaceChildren(
     header,
-    el("div", { class: "app-body" }, sidebar, el("main", { class: "main-content" }, panels.intro, panels.playground, panels.compare)),
+    el("div", { class: "app-body" }, sidebar, el("main", { class: "main-content" }, panels.intro, panels.playground, panels.compare, panels.quiz)),
+    tabBar,
   );
 
   const consoleView = createConsole(consoleHost);
@@ -251,10 +266,14 @@ async function start(): Promise<void> {
     tab = next;
     runBtn.hidden = next !== "playground";
     shareBtn.hidden = next !== "playground";
-    for (const key of Object.keys(panels) as Tab[]) {
+    app.dataset["tab"] = next; // CSS dùng để hiện danh sách bài thành một màn riêng trên điện thoại
+    for (const key of Object.keys(tabButtons) as Tab[]) {
       tabButtons[key].classList.toggle("active", key === next);
+    }
+    for (const key of Object.keys(panels) as Array<keyof typeof panels>) {
       panels[key].classList.toggle("active", key === next);
     }
+    window.scrollTo(0, 0);
     // Tab So sánh cần Monaco: nếu chưa tải xong thì đợi, applyHash() sẽ gọi lại sau khi editor sẵn sàng.
     if (next === "compare" && editor) {
       compare.activate();
@@ -274,7 +293,9 @@ async function start(): Promise<void> {
       if (lesson && !(source.kind === "lesson" && source.lesson.id === lesson.id)) loadLesson(lesson);
       showTab("playground");
     } else {
-      showTab(readTabHash() ?? "intro");
+      const wanted = readTabHash() ?? "intro";
+      // Danh sách bài chỉ là một màn riêng trên điện thoại; trên desktop nó luôn nằm ở sidebar.
+      showTab(wanted === "lessons" && !mobileQuery.matches ? "playground" : wanted);
     }
   }
 
@@ -314,6 +335,13 @@ async function start(): Promise<void> {
   createIntro(panels.intro, {
     onStartPlayground: goPlayground,
     onOpenCompare: () => (location.hash = "compare"),
+    onOpenQuiz: () => (location.hash = "quiz"),
+  });
+  createQuiz(panels.quiz, questions, {
+    onOpenInCode: (code) => {
+      loadShared(code);
+      location.hash = "playground";
+    },
   });
 
   // ---- Gắn sự kiện và hiện trang ngay, trước khi Monaco tải xong ----
@@ -322,8 +350,17 @@ async function start(): Promise<void> {
   shareBtn.addEventListener("click", () => void share());
   themeBtn.addEventListener("click", () => applyTheme(theme === "dark" ? "light" : "dark"));
   tabButtons.intro.addEventListener("click", () => (location.hash = "intro"));
+  tabButtons.lessons.addEventListener("click", () => (location.hash = "lessons"));
   tabButtons.playground.addEventListener("click", goPlayground);
   tabButtons.compare.addEventListener("click", () => (location.hash = "compare"));
+  tabButtons.quiz.addEventListener("click", () => (location.hash = "quiz"));
+  let editing = false;
+  editToggle.addEventListener("click", () => {
+    editing = !editing;
+    editor?.setReadOnly(!editing);
+    editToggle.textContent = editing ? "Xong" : "Sửa code";
+    if (editing) editor?.focus();
+  });
   window.addEventListener("hashchange", applyHash);
   window.addEventListener("keydown", (ev) => {
     if (tab === "playground" && (ev.ctrlKey || ev.metaKey) && ev.key === "Enter") {
@@ -349,6 +386,7 @@ async function start(): Promise<void> {
     );
     editorStatus.remove();
     editor.setTheme(theme);
+    if (touchDevice) editor.setReadOnly(true);
     applyHash(); // kích hoạt phần cần editor (tab So sánh)
   } catch (err) {
     editorStatus.textContent = `Không tải được trình soạn thảo: ${err instanceof Error ? err.message : String(err)}. Hãy tải lại trang.`;

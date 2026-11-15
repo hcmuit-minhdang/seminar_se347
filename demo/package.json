@@ -13,6 +13,7 @@
     "vite": "^8.3.8"
   },
   "dependencies": {
-    "monaco-editor": "^0.57.0"
+    "monaco-editor": "^0.57.0",
+    "qrcode-generator": "^2.0.4"
   }
 }

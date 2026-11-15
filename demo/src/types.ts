@@ -21,8 +21,17 @@ export interface Trap {
   readonly ts: string;
 }
 
+/** Câu hỏi "Có lỗi kiểu không?" cho phần Đố vui. */
+export interface Question {
+  readonly id: string;
+  readonly code: string;
+  readonly hasError: boolean;
+  readonly explain: string;
+}
+
 export type Theme = "light" | "dark";
-export type Tab = "intro" | "playground" | "compare";
+/** `lessons` chỉ dùng trên điện thoại (danh sách bài là một màn riêng); trên desktop là sidebar. */
+export type Tab = "intro" | "lessons" | "playground" | "compare" | "quiz";
 
 /** Trạng thái chạy code: discriminated union. */
 export type RunState =

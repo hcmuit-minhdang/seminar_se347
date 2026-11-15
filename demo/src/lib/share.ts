@@ -30,10 +30,10 @@ export function readSharedCode(): string | null {
   }
 }
 
-/** Hash dạng `#intro`, `#playground` hoặc `#compare`. */
-export function readTabHash(): "intro" | "playground" | "compare" | null {
+/** Hash dạng `#intro`, `#lessons`, `#playground`, `#compare` hoặc `#quiz`. */
+export function readTabHash(): "intro" | "lessons" | "playground" | "compare" | "quiz" | null {
   const h = location.hash.slice(1);
-  return h === "intro" || h === "playground" || h === "compare" ? h : null;
+  return h === "intro" || h === "lessons" || h === "playground" || h === "compare" || h === "quiz" ? h : null;
 }
 
 /** Hash dạng `#lesson=<id>`. */
