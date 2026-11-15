@@ -1,10 +1,8 @@
-import { defineConfig } from "vite";
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
 
+// base './' để chạy được khi deploy lên GitHub Pages (đường dẫn con /seminar_se347/)
 export default defineConfig({
-  base: "./",
-  build: {
-    // Monaco nặng khoảng 4 MB nhưng được tải lười (dynamic import) sau khi trang giới thiệu đã hiện,
-    // nên chỉ nâng ngưỡng cảnh báo cho đúng chunk đó.
-    chunkSizeWarningLimit: 4500,
-  },
-});
+  base: './',
+  plugins: [react()],
+})

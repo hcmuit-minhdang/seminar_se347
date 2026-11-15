@@ -1,60 +1,35 @@
-/** Một bài học trong danh sách demo. */
-export interface Lesson {
-  readonly id: string;
-  readonly title: string;
-  readonly summary: string;
-  readonly explanation: string[];
-  readonly code: string;
-  /**
-   * Các dòng code gây lỗi kiểu, đang được comment trong `code` dưới dạng `// <dòng>`.
-   * Nút "Bật dòng lỗi" sẽ gỡ comment đúng các dòng này.
-   */
-  readonly expectedErrors?: readonly string[];
+import { z } from 'zod'
+
+// [TS #1] Union type (literal types): chỉ cho phép đúng các giá trị này
+export type Status = 'todo' | 'doing' | 'done'
+export type Priority = 'low' | 'medium' | 'high'
+
+// [TS #2] Zod schema: kiểm tra dữ liệu LÚC CHẠY (type của TS bị xóa sau khi build)
+export const TaskSchema = z.object({
+  id: z.string(),
+  title: z.string().min(1),
+  status: z.enum(['todo', 'doing', 'done']),
+  priority: z.enum(['low', 'medium', 'high']),
+  createdAt: z.number(),
+})
+
+// [TS #3] Suy ra type từ schema: viết 1 lần, dùng cho cả runtime lẫn compile time
+export type Task = z.infer<typeof TaskSchema>
+
+// [TS #4] Utility types: Omit để tạo type "dữ liệu nhập" từ Task
+export type NewTask = Omit<Task, 'id' | 'createdAt' | 'status'>
+
+// [TS #5] Filter: union của "all" và Status
+export type Filter = Status | 'all'
+
+export const STATUS_LABEL: Record<Status, string> = {
+  todo: 'Cần làm',
+  doing: 'Đang làm',
+  done: 'Hoàn thành',
 }
 
-/** Cặp ví dụ "JS lặng lẽ sai, TS báo lỗi ngay" cho tab So sánh. */
-export interface Trap {
-  readonly id: string;
-  readonly title: string;
-  readonly note: string;
-  readonly js: string;
-  readonly ts: string;
-}
-
-/** Câu hỏi "Có lỗi kiểu không?" cho phần Đố vui. */
-export interface Question {
-  readonly id: string;
-  readonly code: string;
-  readonly hasError: boolean;
-  readonly explain: string;
-}
-
-export type Theme = "light" | "dark";
-/** `lessons` chỉ dùng trên điện thoại (danh sách bài là một màn riêng); trên desktop là sidebar. */
-export type Tab = "intro" | "lessons" | "playground" | "compare" | "quiz";
-
-/** Trạng thái chạy code: discriminated union. */
-export type RunState =
-  | { status: "idle" }
-  | { status: "running" }
-  | { status: "success"; durationMs: number }
-  | { status: "error"; message: string };
-
-export type LogLevel = "log" | "info" | "warn" | "error";
-
-export interface LogItem {
-  readonly level: LogLevel;
-  readonly text: string;
-}
-
-/** Message chạy từ sandbox về trang chính. `token` khác nhau ở mỗi lần chạy. */
-export type SandboxMessage =
-  | { source: "ts-demo"; token: string; kind: "logs"; items: LogItem[] }
-  | { source: "ts-demo"; token: string; kind: "done"; ms: number }
-  | { source: "ts-demo"; token: string; kind: "error"; message: string };
-
-export interface Diagnostic {
-  readonly line: number;
-  readonly column: number;
-  readonly message: string;
+export const PRIORITY_LABEL: Record<Priority, string> = {
+  low: 'Thấp',
+  medium: 'Vừa',
+  high: 'Cao',
 }

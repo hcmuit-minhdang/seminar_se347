@@ -1,44 +1,29 @@
-# TypeScript Demo
+# TS Task Manager – Demo seminar TypeScript
 
-Web demo giới thiệu TypeScript, viết bằng Vanilla TypeScript (Vite). Chạy hoàn toàn trên trình duyệt, không cần backend.
+React + Vite + TypeScript + Zod. Quản lý công việc (thêm, xóa, đổi trạng thái, lọc, lưu localStorage).
 
 ## Chạy
 
 ```bash
 npm install
-npm run dev      # http://localhost:5173
-npm run build    # kiểm tra kiểu + build production vào dist/
+npm run dev          # chạy web (mặc định http://localhost:5173)
+npm run typecheck    # tsc kiểm tra kiểu (Vite KHÔNG kiểm tra kiểu)
+npm run build        # tsc -b && vite build
+npm run demo:error   # trình diễn: tsc báo 4 lỗi trong demo-errors/errors.ts
 ```
 
-## Tính năng
+## Các kỹ thuật TypeScript (tìm comment `[TS #n]` trong code)
 
-- **Giới thiệu**: TypeScript là gì, vì sao dùng, bảng so sánh với JavaScript.
-- **Playground**: editor Monaco báo lỗi kiểu theo thời gian thực. Nút Chạy (Ctrl+Enter) chạy code trong Web Worker bên trong iframe sandbox, có nút Dừng và tự dừng sau 5 giây (vòng lặp vô hạn không làm treo trang).
-- **8 bài demo**: kiểu cơ bản, interface, generics, union/narrowing, enum/tuple, class/decorator, utility types, async. Nút "Bật dòng lỗi" gỡ comment các dòng cố tình sai kiểu.
-- **So sánh JS/TS**: 4 ví dụ "JS chạy sai im lặng, TS báo lỗi" (chạy JS thật, kiểm tra kiểu thật), và xem JS thật sự được sinh ra từ code bài hiện tại.
-- **Đố vui**: 8 câu "đoạn code này có lỗi kiểu không?", chạm để trả lời, xem giải thích và mở đoạn code trong tab Code.
-- **Giao diện điện thoại** (mobile-first): thanh tab ở đáy, danh sách bài là một màn riêng, nút Chạy nổi trong tầm ngón cái, code tự xuống dòng và mặc định chỉ để xem (bấm "Sửa code" mới hiện bàn phím). Trang giới thiệu có mã QR để khán giả quét. Có manifest PWA nên thêm được vào màn hình chính.
-- Chia sẻ code qua URL (`#code=...`), router theo hash (`#intro`, `#playground`, `#compare`, `#lesson=<id>`), giao diện sáng/tối, responsive.
-- Monaco (~4 MB) được tải lười sau khi trang giới thiệu đã hiện.
+| File | Kỹ thuật |
+|---|---|
+| `src/types.ts` | union/literal type, `Record`, `Omit`, `z.infer` |
+| `src/taskReducer.ts` | discriminated union, type narrowing, kiểm tra `never` |
+| `src/hooks/useLocalStorage.ts` | generic `<T>` + validate dữ liệu bằng Zod |
+| `src/components/*.tsx` | props có type, event type |
+| `demo-errors/errors.ts` | 4 lỗi cố ý để trình diễn `tsc` |
 
-## Deploy
-
-`.github/workflows/pages.yml` (ở gốc repo) build thư mục `demo` và đưa `dist/` lên GitHub Pages khi push vào `main`. Cần bật Settings > Pages > Source: GitHub Actions. `base: "./"` trong `vite.config.ts` đã sẵn sàng cho việc này. Workflow chưa được chạy thử.
-
-## Giới hạn
-
-- Code người dùng chạy trong worker nên không có DOM. `import`/`require` chưa được hỗ trợ.
-- Log tối đa 1000 dòng mỗi lần chạy.
-
-## Cấu trúc
-
-```
-src/
-  main.ts            ghép giao diện và logic
-  types.ts           Lesson, RunState (discriminated union), SandboxMessage...
-  lessons/           mỗi bài một file, index.ts gom lại; traps.ts là các ví dụ cho tab So sánh
-  components/        Editor, Console, LessonList, Compare, Intro
-  lib/               runner (biên dịch + sandbox), share (URL), dom (helper có kiểu)
-```
-
-Thêm bài mới: tạo một file `Lesson` trong `src/lessons/` rồi thêm vào mảng ở `src/lessons/index.ts`.
+## Kịch bản demo (3–5 phút)
+1. `npm run dev`, thêm vài việc, đổi trạng thái, lọc.
+2. Mở `types.ts`, `taskReducer.ts`: chỉ các kỹ thuật ở bảng trên.
+3. Trong `taskReducer.ts`, thêm `| { type: 'archive' }` vào `TaskAction` → editor báo đỏ ở nhánh `default` (kiểm tra `never`). Hoàn tác sau khi demo.
+4. Mở `demo-errors/errors.ts` và chạy `npm run demo:error`.
