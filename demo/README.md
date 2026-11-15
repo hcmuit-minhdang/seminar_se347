@@ -21,7 +21,7 @@ npm run build    # kiểm tra kiểu + build production vào dist/
 
 ## Deploy
 
-`.github/workflows/pages.yml` build và đưa `dist/` lên GitHub Pages khi push vào `main`. Dùng khi thư mục `demo` là gốc của repo, và bật Settings > Pages > Source: GitHub Actions. `base: "./"` trong `vite.config.ts` đã sẵn sàng cho việc này. Workflow chưa được chạy thử.
+`.github/workflows/pages.yml` (ở gốc repo) build thư mục `demo` và đưa `dist/` lên GitHub Pages khi push vào `main`. Cần bật Settings > Pages > Source: GitHub Actions. `base: "./"` trong `vite.config.ts` đã sẵn sàng cho việc này. Workflow chưa được chạy thử.
 
 ## Giới hạn
 

@@ -1,5 +1,5 @@
-# Deploy lên GitHub Pages khi push vào nhánh main.
-# Dùng khi thư mục `demo` là gốc của repo. Bật Settings > Pages > Source: GitHub Actions.
+# Deploy thư mục demo lên GitHub Pages khi push vào nhánh main.
+# Cần bật Settings > Pages > Source: GitHub Actions.
 name: Deploy to GitHub Pages
 
 on:
@@ -19,17 +19,21 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: demo
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
+          cache-dependency-path: demo/package-lock.json
       - run: npm ci
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: demo/dist
 
   deploy:
     needs: build
