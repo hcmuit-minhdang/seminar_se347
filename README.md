@@ -1,7 +1,6 @@
 # Seminar TypeScript (SE347, Nhóm 3)
 
 - `demo/` – Sổ điểm viết bằng TypeScript (không cần framework): tính điểm trung bình môn theo tỉ lệ % riêng từng môn, GPA từng học kỳ, GPA tích lũy, xếp loại, môn học lại.
-- `SLIDE_PLAN.md` – kế hoạch làm slide cho các thành viên.
 - `.github/workflows/pages.yml` – tự deploy `demo/` lên GitHub Pages khi push vào `main`.
 
 ## Chạy demo
@@ -16,4 +15,3 @@ Sau đó mở `demo/index.html` bằng trình duyệt (không cần server). Khi
 
 Phiên bản TypeScript được ghim ở 7.0.2.
 
-Bản demo cũ (Task Manager React + Vite + Zod) vẫn còn trong lịch sử git, commit `a31ba43`.
