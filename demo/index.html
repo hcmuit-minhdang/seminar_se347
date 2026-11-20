@@ -1,13 +1,48 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TS Task Manager</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sổ điểm - Demo TypeScript</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app">
+    <header>
+      <h1>Sổ điểm</h1>
+      <p class="sub">Tính điểm trung bình môn, GPA từng học kỳ và GPA tích lũy</p>
+    </header>
+
+    <section class="tong">
+      <div class="the"><span id="tc-da-hoc">0</span><small>TC đã học</small></div>
+      <div class="the"><span id="tc-tich-luy">0</span><small>TC tích lũy</small></div>
+      <div class="the nhan"><span id="gpa-tich-luy">—</span><small>GPA tích lũy</small><div id="loai-tich-luy" class="loai-the"></div></div>
+    </section>
+
+    <form id="them-form" class="hang-them">
+      <select id="chon-ky">
+        <option value="1">Học kỳ 1</option>
+        <option value="2">Học kỳ 2</option>
+        <option value="3">Học kỳ 3</option>
+      </select>
+      <select id="chon-nam"></select>
+      <input id="nhap-ma" type="text" placeholder="Mã môn (vd IT001)" autocomplete="off" class="ma">
+      <input id="nhap-ten" type="text" placeholder="Tên môn học" autocomplete="off" class="rong">
+      <input id="nhap-tc" type="text" placeholder="Số TC" inputmode="numeric" autocomplete="off" class="tc">
+      <button type="submit" class="chinh">Thêm môn</button>
+    </form>
+
+    <div class="hang-them phu">
+      <span class="goi-y">Mỗi ô có 2 phần: điểm và tỉ lệ %. Tổng tỉ lệ của một môn phải bằng 100%.</span>
+      <span class="gian"></span>
+      <button id="dat-lai">Xóa tất cả</button>
+    </div>
+
+    <div id="thong-bao" class="thong-bao" hidden></div>
+
+    <div id="ky-hoc"></div>
+  </main>
+
+  <script src="dist/main.js"></script>
+</body>
 </html>

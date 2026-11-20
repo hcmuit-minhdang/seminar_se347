@@ -31,9 +31,14 @@ jobs:
           cache-dependency-path: demo/package-lock.json
       - run: npm ci
       - run: npm run build
+      - name: Gom file để deploy
+        run: |
+          mkdir _site
+          cp index.html style.css _site/
+          cp -r dist _site/
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: demo/dist
+          path: demo/_site
 
   deploy:
     needs: build
